@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Valentine 💖</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  height: 100vh;
+  background: radial-gradient(circle at top, #ffe0ec, #ff7aa2);
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* SPLIT LIDS */
+.lid {
+  position: fixed;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(135deg, #ff2f68, #ff7eb3);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+#left { left: 0; }
+#right { right: 0; }
+
+.lid span {
+  font-family: 'Playfair Display', serif;
+  color: white;
+  font-size: 2.8rem;
+  letter-spacing: 4px;
+}
+
+.openLeft { animation: openLeft 1.8s cubic-bezier(.77,0,.18,1) forwards; }
+.openRight { animation: openRight 1.8s cubic-bezier(.77,0,.18,1) forwards; }
+
+@keyframes openLeft { to { transform: translateX(-120%); } }
+@keyframes openRight { to { transform: translateX(120%); } }
+
+/* MAIN CARD */
+#content {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 440px;
+  padding: 60px;
+  border-radius: 40px;
+  background: rgba(255,255,255,0.3);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 40px 90px rgba(0,0,0,.25);
+  text-align: center;
+  opacity: 0;
+  transform: scale(0.85);
+  animation: appear 1.2s ease forwards;
+  animation-delay: 1.6s;
+}
+
+@keyframes appear {
+  to { opacity: 1; transform: scale(1); }
+}
+
+h1 {
+  font-family: 'Playfair Display', serif;
+  color: #ff2f68;
+  font-size: 2.2rem;
+}
+
+/* BUTTONS */
+.buttons {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+}
+
+button {
+  padding: 18px 40px;
+  border-radius: 60px;
+  font-size: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+#yes {
+  background: linear-gradient(135deg, #ff2f68, #ff5f8a);
+  color: white;
+  box-shadow: 0 20px 50px rgba(255,47,104,.6);
+  position: relative;
+}
+
+#no {
+  background: white;
+  color: #ff2f68;
+}
+
+/* FULLSCREEN YES OVERLAY */
+#yesOverlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #ff2f68, #ff7eb3);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 20;
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem;
+}
+
+/* RESULT */
+#result {
+  display: none;
+}
+
+#result img {
+  width: 300px;
+  animation: pop 0.8s ease;
+}
+
+@keyframes pop {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
+}
+
+/* CONFETTI / HEARTS */
+.heart {
+  position: fixed;
+  top: -10px;
+  font-size: 22px;
+  animation: fall linear forwards;
+}
+
+@keyframes fall {
+  to { transform: translateY(110vh); }
+}
+</style>
+</head>
+
+<body>
+
+<!-- MUSIC -->
+<audio id="music" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_4c2c42b6c5.mp3" type="audio/mpeg">
+</audio>
+
+<!-- GIFT LIDS -->
+<div id="left" class="lid"><span>OPEN</span></div>
+<div id="right" class="lid"><span>ME</span></div>
+
+<div id="content">
+  <div class="card">
+    <div id="question">
+      <h1 id="typed"></h1>
+      <div class="buttons">
+        <button id="yes">Yes 💕</button>
+        <button id="no">No 😢</button>
+      </div>
+    </div>
+
+    <div id="result">
+      <img src="https://media1.tenor.com/images/2d4138c7c24d21b9d17f66a54ee7ea03/tenor.gif?itemid=12535134" alt="hugging bear">
+    </div>
+  </div>
+</div>
+
+<div id="yesOverlay">YIPPEEE 💖</div>
+
+<script>
+const left = document.getElementById("left");
+const right = document.getElementById("right");
+const yes = document.getElementById("yes");
+const no = document.getElementById("no");
+const overlay = document.getElementById("yesOverlay");
+const question = document.getElementById("question");
+const result = document.getElementById("result");
+const music = document.getElementById("music");
+const typed = document.getElementById("typed");
+
+let scale = 1;
+
+/* TYPE NAME */
+const text = "Will you be my Valentine? 💖";
+let i = 0;
+(function type() {
+  if (i < text.length) {
+    typed.textContent += text.charAt(i++);
+    setTimeout(type, 60);
+  }
+})();
+
+/* OPEN GIFT */
+[left, right].forEach(l => l.onclick = () => {
+  left.classList.add("openLeft");
+  right.classList.add("openRight");
+});
+
+/* YES CHASE CURSOR */
+document.addEventListener("mousemove", e => {
+  const r = yes.getBoundingClientRect();
+  const dx = e.clientX - (r.left + r.width/2);
+  const dy = e.clientY - (r.top + r.height/2);
+  if (Math.hypot(dx,dy) < 180) {
+    yes.style.transform = `translate(${dx*0.3}px, ${dy*0.3}px) scale(${scale})`;
+  }
+});
+
+/* NO MAKES YES HUGE */
+no.onclick = () => {
+  scale += 1.2;
+  yes.style.transform = `scale(${scale})`;
+  no.innerText = no.innerText === "No 😢" ? "Are you sure? 🥺" : ":(";
+};
+
+/* YES CLICK */
+yes.onclick = () => {
+  overlay.style.display = "flex";
+  music.volume = 0;
+  music.play();
+  let v = setInterval(() => {
+    if (music.volume < 1) music.volume += 0.05;
+    else clearInterval(v);
+  }, 100);
+
+  if (navigator.vibrate) navigator.vibrate(200);
+
+  setTimeout(() => {
+    overlay.style.display = "none";
+    question.style.display = "none";
+    result.style.display = "block";
+    hearts();
+  }, 1200);
+};
+
+/* HEART RAIN */
+function hearts() {
+  setInterval(() => {
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.textContent = "💖";
+    h.style.left = Math.random()*100 + "vw";
+    h.style.animationDuration = 3 + Math.random()*2 + "s";
+    document.body.appendChild(h);
+    setTimeout(()=>h.remove(),5000);
+  }, 200);
+}
+</script>
+
+</body>
+</html>
